@@ -1,10 +1,18 @@
 plugins {
     id 'java'
     id 'war'
+    id 'idea'
 }
 
 group 'com.ikatas'
 version '1.0'
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+ext {
+    jettyVersion = "9.4.30.v20200611"
+}
 
 repositories {
     mavenLocal()
@@ -12,10 +20,23 @@ repositories {
 }
 
 dependencies {
+    implementation 'javax.websocket:javax.websocket-api:1.1'
     testImplementation 'junit:junit:4.13'
     testImplementation 'org.hamcrest:hamcrest:2.2'
+    testImplementation 'net.sourceforge.htmlunit:htmlunit:2.42.0'
+    testImplementation "org.eclipse.jetty:jetty-webapp:$jettyVersion"
+    testImplementation "org.eclipse.jetty:jetty-annotations:$jettyVersion"
+    testImplementation "org.eclipse.jetty.websocket:javax-websocket-server-impl:$jettyVersion"
 }
 
 war {
-    version = null
+    archiveFileName.set("${project.name}.${archiveExtension.get()}")
+}
+
+idea {
+    module {
+        excludeDirs += [file('.idea'), file('.gradle')]
+        downloadSources = true
+        downloadJavadoc = true
+    }
 }
