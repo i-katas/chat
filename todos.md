@@ -1,0 +1,3 @@
+- Join to chat 
+- Send a message to everyone who has joined in chat
+- Notify when someone left out of the chat
