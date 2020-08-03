@@ -1,5 +1,6 @@
 module.exports = {
     "setupFilesAfterEnv": ["jest-enzyme"],
     "testEnvironment": "enzyme",
-    "moduleDirectories": ['node_modules', 'src/main/js']
+    "moduleDirectories": ['node_modules', 'src/main/js'],
+    "testTimeout": 1000
 }
