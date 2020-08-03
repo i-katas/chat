@@ -8,4 +8,5 @@ target
 build
 
 *.swp
+node_modules
 
