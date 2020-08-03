@@ -2,7 +2,7 @@ package com.ikatas.chat;
 
 import javax.websocket.server.ServerEndpoint;
 
-@ServerEndpoint("/")
+@ServerEndpoint("/{user}")
 public class ChatServer {
 
 }

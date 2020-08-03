@@ -2,19 +2,24 @@
   "name": "chat",
   "version": "1.0.0",
   "scripts": {
-    "test": "node_modules/.bin/jest -- src/test/js"
+    "build": "node_modules/.bin/webpack",
+    "test": "node_modules/.bin/jest"
   },
   "devDependencies": {
     "@babel/preset-env": "^7.11.0",
     "@babel/preset-react": "^7.10.4",
     "@types/enzyme": "^3.10.5",
     "@types/jest": "^26.0.8",
+    "babel-loader": "^8.1.0",
     "enzyme": "^3.11.0",
     "enzyme-adapter-react-16": "^1.15.2",
     "enzyme-matchers": "^7.1.2",
+    "html-webpack-plugin": "^4.3.0",
     "jest": "^24.8.0",
     "jest-environment-enzyme": "^7.1.2",
     "jest-enzyme": "^7.1.2",
+    "webpack": "^4.44.1",
+    "webpack-cli": "^3.3.12",
     "ws": "^7.3.1"
   },
   "dependencies": {

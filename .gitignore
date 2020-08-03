@@ -9,4 +9,5 @@ build
 
 *.swp
 node_modules
+src/main/webapp
 

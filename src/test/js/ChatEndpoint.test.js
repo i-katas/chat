@@ -18,9 +18,9 @@ describe('ChatEndpoint', () => {
 });
 
 class MockWebSocketServer {
-    constructor(port) {
+    constructor() {
         this.users = []
-        this.server = new WebSocket.Server({port});
+        this.server = new WebSocket.Server({port: 0});
         this.server.on('connection', (_, request) => {
             let pos = request.url.lastIndexOf('/')
             this.users.push(request.url.substring(pos + 1))
