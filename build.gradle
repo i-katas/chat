@@ -42,9 +42,30 @@ idea {
     }
 }
 
-check.dependsOn(npm_test)
+sourceSets {
+    itest {
+        compileClasspath += sourceSets.main.output + sourceSets.test.output
+        runtimeClasspath += sourceSets.main.output + sourceSets.test.output
+        java {
+            srcDirs = [file('src/itest/java')]
+            outputDir = file("${project.buildDir}/classes/itest")
+        }
+    }
+}
+
+configurations {
+    itestImplementation.extendsFrom(testImplementation)
+    itestRuntimeOnly.extendsFrom(testRuntimeOnly)
+}
+
+task itest(type: Test) {
+    testClassesDirs = sourceSets.itest.output.classesDirs
+    classpath = sourceSets.itest.runtimeClasspath
+}
+
 war.dependsOn(npm_run_build)
-test.dependsOn(npm_run_build)
+itest.dependsOn(npm_run_build)
+check.dependsOn([npm_test, itest])
 
 tasks.withType(NpmTask) {
     environment = [production: true, webSocketServerURL: 'ws://localhost:8080/chat']
