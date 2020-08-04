@@ -27,15 +27,17 @@ export default class Chat extends React.Component {
 
     join(user) {
         let {endpoint} = this.props
-        endpoint.join(user, () => this.addMessage('你已加入聊天!'))
+        endpoint.join(user, {
+            joined: ({from}) => this.addMessage(from ? 'other notice' : 'notice', from ? `${from}已加入聊天!` : '你已加入聊天!')
+        })
     }
 
     userChanged(value) {
         this.setState((prevState) => ({prevState, user: value}))
     }
 
-    addMessage(message) {
-        this.setState(prevState => ({prevState, messages: prevState.messages.concat(message)}))
+    addMessage(type, message) {
+        this.setState(prevState => ({prevState, messages: prevState.messages.concat({type: type, content: message})}))
     }
 }
 

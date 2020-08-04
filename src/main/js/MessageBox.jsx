@@ -6,12 +6,16 @@ export default class MessageBox extends React.Component {
         let {messages = []} = this.props
         return (
             <div className='messageBox'>
-                {messages.map((message, i) => <div className='notice' key={i}>{message}</div>)}
+                {messages.map((message, i) => <div className={message.type} key={i}>{message.content}</div>)}
             </div>
         )
     }
 }
 
+const Message = PropTypes.shape({
+    type: PropTypes.string,
+    content: PropTypes.string
+});
 MessageBox.propTypes = {
-    messages: PropTypes.arrayOf(PropTypes.string)
+    messages: PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.string, Message]))
 }

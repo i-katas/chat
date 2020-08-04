@@ -17,6 +17,22 @@ describe('Chat', () => {
 
         expect(chat.find('.messageBox').find('.notice')).toHaveText('你已加入聊天!')
     });
+
+    it('receives joined message from others after join chat', () => {
+        let server = new MockChatEndpoint();
+        let chat = mount(<Chat endpoint={server}/>)
+
+        chat.find('#user').simulate('change', {target: {value: 'bob'}})
+        chat.find('#join').simulate('click')
+
+        server.hasReceivedJoinRequestFrom('bob');
+        server.ackAllJoinRequests();
+        chat.update()
+
+        server.sendJoinedMessageFrom('jack')
+        chat.update()
+        expect(chat.find('.messageBox').find('.other.notice')).toHaveText('jack已加入聊天!')
+    });
 })
 
 class MockChatEndpoint extends ChatEndpoint {
@@ -36,6 +52,10 @@ class MockChatEndpoint extends ChatEndpoint {
     }
 
     ackAllJoinRequests() {
-        this.eventListeners.forEach(eventListener => eventListener())
+        this.eventListeners.forEach(eventListener => eventListener.joined({}))
+    }
+
+    sendJoinedMessageFrom(user) {
+        this.eventListeners.forEach(eventListener => eventListener.joined({from: user}))
     }
 }

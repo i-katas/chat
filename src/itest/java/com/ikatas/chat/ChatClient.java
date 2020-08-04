@@ -17,6 +17,7 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.apache.commons.lang3.StringUtils.trimToNull;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+import static org.junit.Assert.fail;
 
 public class ChatClient {
     private final String name;
@@ -50,6 +51,18 @@ public class ChatClient {
     public synchronized void hasShownJoinedMessage() throws Exception {
         HtmlElement notice = select(".notice", HtmlElement.class);
         assertThat(await("Joined message", () -> with(trimToNull(notice.asText()))), equalTo("你已加入聊天!"));
+    }
+
+    public void hasReceivedJoinedMessageFrom(ChatClient other) throws Exception {
+        HtmlElement notice = select(".other.notice", HtmlElement.class);
+        assertThat(await("Joined message from " + other.name, () -> with(trimToNull(notice.asText()))), equalTo(other.name + "已加入聊天!"));
+    }
+
+    public void hasNotReceivedAnyJoinedMessages() throws Exception {
+        try {
+            select(".other.notice", HtmlElement.class);
+            fail();
+        } catch (TimeoutException expected) {/**/}
     }
 
     private synchronized <T extends HtmlElement> T select(String selector, Class<T> type) throws Exception {
