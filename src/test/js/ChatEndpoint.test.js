@@ -1,15 +1,17 @@
 import ChatEndpoint from 'ChatEndpoint'
 import WebSocket from 'ws'
+import MockChatListener from "./mocks/MockChatListener";
 
 describe('ChatEndpoint', () => {
-    let server;
-    beforeEach(() => (server = new MockWebSocketServer(8080)))
+    let server, chat;
+    beforeEach(() => {
+        server = new MockWebSocketServer()
+        chat = new ChatEndpoint(server.location)
+    })
 
     it('connect to chat server', (done) => {
-        let chat = new ChatEndpoint(server.location)
-
         chat.join('bob', {
-            joined({from}) {
+            userJoined({from}) {
                 server.hasReceivedJoinedRequestFrom('bob');
                 expect(from).toBeUndefined()
                 done()
@@ -18,10 +20,9 @@ describe('ChatEndpoint', () => {
     });
 
     it('send joined messages from others to established connections', (done) => {
-        let chat = new ChatEndpoint(server.location)
         let participants = []
         chat.join('bob', {
-            joined({from}) {
+            userJoined({from}) {
                 participants.push(from)
                 server.hasReceivedJoinedRequestFrom('bob');
                 if (participants.length === 2) {
@@ -32,31 +33,48 @@ describe('ChatEndpoint', () => {
         });
 
         chat.join('jack', {
-            joined() {
+            userJoined() {
                 server.hasReceivedJoinedRequestFrom('jack');
             }
         });
+    });
+
+    it('receives normal message from others', (done) => {
+        chat.join('bob', {
+            userJoined() {
+            },
+            messageArrived(message) {
+                expect(message).toEqual({from: 'jack', content: 'ok'})
+                done()
+            }
+        });
+
+        let jack = chat.join('jack', new MockChatListener());
+        jack.send('ok')
     });
 
     afterEach(() => server.stop())
 });
 
 class MockWebSocketServer {
+    users = []
+    sockets = []
+
     constructor() {
-        this.users = []
-        this.connections = []
         this.server = new WebSocket.Server({port: 0});
         this.server.on('connection', (socket, request) => {
             let pos = request.url.lastIndexOf('/')
             let user = request.url.substring(pos + 1);
             this.users.push(user)
-            this.connections[user] = socket
-            this.users.forEach(current => {
-                if (current !== user) {
-                    this.connections[current].send(user)
-                }
-            })
+            this.sockets.push(socket)
+            this.broadcast(user, user);
+            socket.on('message', (message) => this.broadcast(user, {from: user, content: message}))
         })
+    }
+
+    broadcast(user, message) {
+        this.sockets.filter((_, i) => this.users[i] !== user)
+            .forEach(current => current.send(JSON.stringify(message)))
     }
 
     get location() {

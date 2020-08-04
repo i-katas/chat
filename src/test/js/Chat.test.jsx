@@ -1,61 +1,65 @@
-import ChatEndpoint from "ChatEndpoint";
+import MockChatEndpoint from './mocks/MockChatEndpoint'
 import Chat from 'Chat'
 import {mount} from 'enzyme'
-import React from "react";
+import React from 'react'
 
 describe('Chat', () => {
-    it('shows joined message after join chat success', () => {
-        let server = new MockChatEndpoint();
-        let chat = mount(<Chat endpoint={server}/>)
+    let server;
+    beforeEach(() => {
+        server = new MockChatEndpoint();
+    })
 
-        chat.find('#user').simulate('change', {target: {value: 'bob'}})
+    function join(name) {
+        let chat = mount(<Chat endpoint={server}/>);
+        chat.find('#user').simulate('change', {target: {value: name}})
         chat.find('#join').simulate('click')
 
         server.hasReceivedJoinRequestFrom('bob');
-        server.ackAllJoinRequests();
+        server.ack();
         chat.update()
+        return chat;
+    }
 
-        expect(chat.find('.messageBox').find('.notice')).toHaveText('你已加入聊天!')
+    describe('interaction', () => {
+        it('shows joined message after join chat success', () => {
+            let chat = join('bob');
+
+            expect(chat.find('.messageBox').find('.notice')).toHaveText('你已加入聊天!')
+        });
+
+        it('receives joined message from others after join chat', () => {
+            let bob = join('bob')
+
+            let jack = join('jack')
+
+            bob.update()
+            expect(jack.find('.messageBox').find('.other.notice')).toHaveLength(0)
+            expect(bob.find('.messageBox').find('.other.notice')).toHaveText('jack已加入聊天!')
+        });
+
+        it('receives normal message from others after join chat', () => {
+            let bob = join('bob')
+            let jack = join('jack')
+
+            jack.find('#message').simulate('change', {target: {value: 'hello'}})
+            jack.find('#send').simulate('click')
+            jack.update()
+
+            server.hasSentMessageFrom('jack', 'hello')
+            bob.update()
+            expect(bob.find('.other.message .user')).toHaveText('jack')
+            expect(bob.find('.other.message .content')).toHaveText('hello')
+            expect(jack.find('.message .user')).toHaveText('我')
+            expect(jack.find('.message .content')).toHaveText('hello')
+        });
     });
 
-    it('receives joined message from others after join chat', () => {
-        let server = new MockChatEndpoint();
-        let chat = mount(<Chat endpoint={server}/>)
+    describe('ui', () => {
+        it('displays sending components after joined', () => {
+            let chat = join('bob');
 
-        chat.find('#user').simulate('change', {target: {value: 'bob'}})
-        chat.find('#join').simulate('click')
-
-        server.hasReceivedJoinRequestFrom('bob');
-        server.ackAllJoinRequests();
-        chat.update()
-
-        server.sendJoinedMessageFrom('jack')
-        chat.update()
-        expect(chat.find('.messageBox').find('.other.notice')).toHaveText('jack已加入聊天!')
+            expect(chat.find('#user')).not.toExist()
+            expect(chat.find('#message')).toExist()
+        });
     });
 })
-
-class MockChatEndpoint extends ChatEndpoint {
-    constructor() {
-        super()
-        this.users = []
-        this.eventListeners = []
-    }
-
-    join(user, eventListener) {
-        this.users.push(user)
-        this.eventListeners.push(eventListener)
-    }
-
-    hasReceivedJoinRequestFrom(user) {
-        expect(this.users).toContain(user)
-    }
-
-    ackAllJoinRequests() {
-        this.eventListeners.forEach(eventListener => eventListener.joined({}))
-    }
-
-    sendJoinedMessageFrom(user) {
-        this.eventListeners.forEach(eventListener => eventListener.joined({from: user}))
-    }
-}

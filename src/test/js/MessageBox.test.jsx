@@ -1,18 +1,50 @@
-import React from "react";
+import React from 'react';
 import MessageBox from 'MessageBox'
-import {shallow} from 'enzyme'
 
-describe('MessageBox', () => {
-    it('render empty messages', () => {
+const TYPE_MESSAGE = 'message';
+const TYPE_NOTICE = 'notice';
+describe('MessageBox rendering', () => {
+    it('empty messages', () => {
         let messageBox = mount(<MessageBox/>);
 
         expect(messageBox.find('.messageBox').children()).toHaveLength(0)
     })
 
-    it('render notify messages', () => {
-        let messageBox = mount(<MessageBox messages={[{type: 'notice', content: 'ok'}]}/>);
+    describe('notice', () => {
+        it('from system', () => {
+            let messageBox = mount(<MessageBox messages={[{type: TYPE_NOTICE, system: true, content: 'ok'}]}/>);
+            let notice = messageBox.find('.messageBox').find('.notice');
 
-        expect(messageBox.find('.messageBox').children()).toHaveLength(1)
-        expect(messageBox.find('.messageBox').find('.notice')).toHaveText('ok')
-    })
+            expect(notice).not.toHaveClassName('other')
+            expect(notice).toHaveText('ok')
+        })
+
+        it('from others', () => {
+            let messageBox = mount(<MessageBox messages={[{type: TYPE_NOTICE, from: 'bob', system: false, content: 'ok'}]}/>);
+            let notice = messageBox.find('.messageBox').find('.notice');
+
+            expect(notice).toHaveClassName('other')
+            expect(notice).toHaveText('ok')
+        })
+    });
+
+    describe('normal message', () => {
+        it('from system', () => {
+            let messageBox = mount(<MessageBox messages={[{type: TYPE_MESSAGE, from: 'me', system: true, content: 'ok'}]}/>);
+            let message = messageBox.find('.message')
+
+            expect(message.find('.user')).toHaveText('me')
+            expect(message.find('.content')).toHaveText('ok')
+            expect(message).not.toHaveClassName('other')
+        })
+
+        it('from others', () => {
+            let messageBox = mount(<MessageBox messages={[{type: TYPE_MESSAGE, from: 'me', system: false, content: 'ok'}]}/>);
+            let message = messageBox.find('.message')
+
+            expect(message.find('.user')).toHaveText('me')
+            expect(message.find('.content')).toHaveText('ok')
+            expect(message).toHaveClassName('other')
+        })
+    });
 });

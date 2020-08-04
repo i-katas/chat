@@ -4,13 +4,13 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-public class ChatTest {
+public class ChatEndToEndTest {
     private final ChatWebServer chat = new ChatWebServer();
     private final ChatClient bob = new ChatClient("bob");
     private final ChatClient jack = new ChatClient("jack");
 
     @Before
-    public void startChat() throws Exception {
+    public void setUp() throws Exception {
         chat.start();
     }
 
@@ -33,8 +33,19 @@ public class ChatTest {
         jack.hasNotReceivedAnyJoinedMessages();
     }
 
+    @Test
+    public void receivesMessageFromOthers() throws Exception {
+        bob.joinTo(chat);
+        jack.joinTo(chat);
+
+        bob.send("hello");
+
+        jack.hasReceivedMessageFrom(bob, "hello");
+        bob.hasNoMessageReceivedFromOthers();
+    }
+
     @After
-    public void stop() throws Exception {
+    public void tearDown() throws Exception {
         jack.close();
         bob.close();
         chat.stop();

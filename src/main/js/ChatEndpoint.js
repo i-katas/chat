@@ -1,3 +1,5 @@
+import chatMessageTranslator from './ChatMessageTranslator'
+
 export default class ChatEndpoint {
     constructor(serverLocation) {
         this.serverLocation = serverLocation;
@@ -5,8 +7,24 @@ export default class ChatEndpoint {
 
     join(user, eventListener) {
         let ws = new WebSocket(`${this.serverLocation}/${user}`)
-        ws.addEventListener('open', eventListener.joined)
-        ws.addEventListener('message', ({data}) => eventListener.joined({from: data}))
+        let translator = chatMessageTranslator(eventListener)
+        ws.addEventListener('open', translator)
+        ws.addEventListener('message', translator)
+        return {
+            send: (message) => {
+                return this.waitForReady(ws).then(() => ws.send(message))
+            }
+        }
+    }
+
+    waitForReady(ws) {
+        return new Promise(function onComplete(resolve) {
+            if (ws.readyState === 1) {
+                resolve(ws)
+                return
+            }
+            setTimeout(onComplete, 100, resolve)
+        });
     }
 }
 

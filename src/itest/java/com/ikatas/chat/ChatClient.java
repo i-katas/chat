@@ -5,6 +5,7 @@ import com.gargoylesoftware.htmlunit.html.HtmlButton;
 import com.gargoylesoftware.htmlunit.html.HtmlElement;
 import com.gargoylesoftware.htmlunit.html.HtmlInput;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
+import com.gargoylesoftware.htmlunit.html.HtmlTextArea;
 
 import java.io.IOException;
 import java.util.Optional;
@@ -61,6 +62,24 @@ public class ChatClient {
     public void hasNotReceivedAnyJoinedMessages() throws Exception {
         try {
             select(".other.notice", HtmlElement.class);
+            fail();
+        } catch (TimeoutException expected) {/**/}
+    }
+
+    public void send(String message) throws Exception {
+        select("#message", HtmlTextArea.class).type(message);
+        select("#send", HtmlButton.class).click();
+    }
+
+    public void hasReceivedMessageFrom(ChatClient from, String message) throws Exception {
+        HtmlElement box = select(".other.message", HtmlElement.class);
+        assertThat(box.querySelector(".user").asText(), equalTo(from.name));
+        assertThat(box.querySelector(".content").asText(), equalTo(message));
+    }
+
+    public void hasNoMessageReceivedFromOthers() throws Exception {
+        try {
+            select(".other.message", HtmlElement.class);
             fail();
         } catch (TimeoutException expected) {/**/}
     }

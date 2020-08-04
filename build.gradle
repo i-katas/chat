@@ -21,7 +21,9 @@ repositories {
 }
 
 dependencies {
-    implementation 'javax.websocket:javax.websocket-api:1.1'
+    compileOnly 'javax.websocket:javax.websocket-api:1.1'
+    implementation 'org.json:json:20200518'
+
     testImplementation 'junit:junit:4.13'
     testImplementation 'org.hamcrest:hamcrest:2.2'
     testImplementation 'net.sourceforge.htmlunit:htmlunit:2.42.0'
