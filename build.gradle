@@ -13,6 +13,9 @@ targetCompatibility = 1.8
 
 ext {
     jettyVersion = "9.4.30.v20200611"
+    warGeneratedDir = "${project.buildDir}/generated/sources/public"
+    serverPort = 8080
+    contextPath = '/chat'
 }
 
 repositories {
@@ -33,6 +36,7 @@ dependencies {
 }
 
 war {
+    from warGeneratedDir
     archiveFileName.set("${project.name}.${archiveExtension.get()}")
 }
 
@@ -52,7 +56,14 @@ sourceSets {
             srcDirs = [file('src/itest/java')]
             outputDir = file("${project.buildDir}/classes/itest")
         }
+        resources {
+            srcDir 'src/itest/resources'
+        }
     }
+}
+
+tasks.withType(ProcessResources) {
+    expand([warSourceDirectory: warGeneratedDir, serverPort: serverPort, contextPath: contextPath])
 }
 
 configurations {
@@ -70,7 +81,7 @@ itest.dependsOn(npm_run_build)
 check.dependsOn([npm_test, itest])
 
 tasks.withType(NpmTask) {
-    environment = [production: true, webSocketServerURL: 'ws://localhost:8080/chat']
+    environment = [production: true, buildDir: warGeneratedDir, webSocketServerURL: "ws://localhost:${serverPort}${contextPath}"]
 }
 
 clean {

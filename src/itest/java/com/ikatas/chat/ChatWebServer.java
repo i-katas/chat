@@ -5,8 +5,11 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.webapp.WebAppContext;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.UncheckedIOException;
 import java.net.URI;
 import java.net.URL;
+import java.util.Properties;
 import java.util.stream.Stream;
 
 import static java.util.Collections.list;
@@ -14,10 +17,27 @@ import static java.util.stream.Collectors.joining;
 import static org.eclipse.jetty.webapp.Configuration.ClassList.setServerDefault;
 
 public class ChatWebServer implements ChatEndpoint {
-    private static final String WEB_ROOT_DIR = "src/main/webapp";
-    private final int serverPort = 8080;
-    private final String contextPath = "/chat";
+    private int serverPort;
+    private String contextPath;
+    private String warSourceDirectory;
     private Server server;
+
+    public ChatWebServer() {
+        Properties props = loadTestEnvironment();
+        serverPort = Integer.parseInt(props.getProperty("serverPort"));
+        contextPath = props.getProperty("contextPath");
+        warSourceDirectory = props.getProperty("warSourceDirectory");
+    }
+
+    private Properties loadTestEnvironment() {
+        try (InputStream in = ClassLoader.getSystemResourceAsStream("env.properties")) {
+            Properties props = new Properties();
+            props.load(in);
+            return props;
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
 
     public void start() throws Exception {
         server = serverScanAnnotations(serverPort);
@@ -33,7 +53,7 @@ public class ChatWebServer implements ChatEndpoint {
     }
 
     private WebAppContext webapp(String contextPath) throws IOException {
-        WebAppContext wac = new WebAppContext(WEB_ROOT_DIR, contextPath);
+        WebAppContext wac = new WebAppContext(warSourceDirectory, contextPath);
         wac.setExtraClasspath(buildOutputDirs().collect(joining(";")));
         return wac;
     }

@@ -7,7 +7,7 @@ module.exports = {
     mode: process.env.production ? 'production' : 'development',
     entry: 'app',
     output: {
-        path: path.resolve('src/main/webapp'),
+        path: path.resolve(process.env.buildDir || 'build/generated/sources/public'),
         filename: 'app.[hash].js'
     },
     module: {
