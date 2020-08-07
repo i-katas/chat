@@ -53,6 +53,16 @@ describe('ChatEndpoint', () => {
         jack.send('ok')
     });
 
+    it('report error if join chat failed', (done) => {
+        server.stop()
+
+        chat.join('bob', {
+            failed() {
+                done()
+            }
+        });
+    });
+
     afterEach(() => server.stop())
 });
 

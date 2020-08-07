@@ -47,6 +47,7 @@ html, body {
 
     .message {
       font-size: 0.8em;
+
       .user {
         float: left;
         height: $user_height;
@@ -113,6 +114,11 @@ html, body {
 
     .notice {
       text-align: center;
+
+      &.error em {
+         background: #ff3d00;
+         color: #fff;
+      }
     }
 
     .notice em {

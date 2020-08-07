@@ -17,4 +17,13 @@ export default class MockChatListener {
     hasReceivedMessageFrom(user, message) {
         expect(this.messages).toContainEqual({from: user, message})
     }
+
+    failed() {
+        this.failed = true
+    }
+
+    hasFailed() {
+        expect(this.failed).toBe(true)
+    }
+
 }

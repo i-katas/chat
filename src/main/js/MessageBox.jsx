@@ -14,7 +14,7 @@ export default class MessageBox extends React.Component {
 
     renderMessage(message, i) {
         let content = {__html: string.escape(message.content)};
-        if (message.type == 'message') {
+        if (message.type === 'message') {
             return (
                 <Message message={message} key={i}>
                     <div className='user'>{message.from}</div>

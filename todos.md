@@ -1,8 +1,7 @@
 - Join to chat 
-    - reports error when join failed?
     - display all joined users after joined into the chat
 - Send a message to everyone who has joined in chat
     - handle error when send a message failed
-    - scroll to bottom when show a message
+    - scroll to the bottom of message box when show a message if scrollbar at the bottom
 - Notify when someone left out of the chat
 - Disconnect when dispatch notification/message failed

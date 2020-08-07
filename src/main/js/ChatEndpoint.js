@@ -9,6 +9,7 @@ export default class ChatEndpoint {
         let ws = new WebSocket(`${this.serverLocation}/${user}`)
         let translator = chatMessageTranslator(eventListener)
         ws.addEventListener('open', translator)
+        ws.addEventListener('error', translator)
         ws.addEventListener('message', translator)
         return {
             send: (message) => {

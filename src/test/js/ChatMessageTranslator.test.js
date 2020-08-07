@@ -3,29 +3,35 @@ import MockChatListener from './mocks/MockChatListener'
 
 describe('ChatMessageTranslator', () => {
     let chatListener;
-    let translator;
+    let translateEvent;
 
     beforeEach(() => {
         chatListener = new MockChatListener();
-        translator = translatorFor(chatListener);
+        translateEvent = translatorFor(chatListener);
     })
 
     it('translate self joining message', () => {
-        translator({data: null})
+        translateEvent({data: null})
 
         chatListener.hasReceivedJoinedRequestFrom(null)
     });
 
     it('translate joining message from others', () => {
-        translator({data: '"jack"'})
+        translateEvent({data: '"jack"'})
 
         chatListener.hasReceivedJoinedRequestFrom('jack')
     });
 
     it('translate normal message from others', () => {
-        translator({data: '{"from":"jack", "message": "ok"}'})
+        translateEvent({data: '{"from":"jack", "message": "ok"}'})
 
         chatListener.hasReceivedMessageFrom('jack', 'ok')
+    });
+
+    it('report error when failed', () => {
+        translateEvent({type: 'error'})
+
+        chatListener.hasFailed()
     });
 });
 
