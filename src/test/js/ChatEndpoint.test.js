@@ -63,6 +63,14 @@ describe('ChatEndpoint', () => {
         });
     });
 
+    it('report error if send message failed', (done) => {
+        let bob = chat.join('bob', new MockChatListener());
+
+        server.stop()
+
+        bob.send('any').catch(() => done())
+    });
+
     afterEach(() => server.stop())
 });
 

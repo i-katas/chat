@@ -27,14 +27,34 @@ describe('Chat', () => {
             expect(chat.find('.messageBox').find('.notice')).toHaveText('你已加入聊天!')
         });
 
-        it('reports error message when join chat failed', () => {
+        it('reports error message when join chat failed', (done) => {
             let chat = join('bob');
 
-            server.fail();
+            server.fail().finally(()=>{
+                chat.update()
+
+                expect(chat.find('.messageBox').find('.error.notice')).toHaveText('连接服务器失败!')
+                expect(chat.find('#user')).toExist()
+                done()
+            });
+        });
+
+        it('reports error message when send message failed', (done) => {
+            let chat = join('bob');
+            server.ack();
             chat.update()
 
-            expect(chat.find('.messageBox').find('.error.notice')).toHaveText('连接服务器失败!')
-            expect(chat.find('#user')).toExist()
+            chat.find('#message').simulate('change', {target: {value: 'hello'}})
+            chat.find('#send').simulate('click')
+            chat.update()
+
+            server.hasReceivedMessageFrom('bob', 'hello')
+            server.fail().catch(() => {
+                chat.update()
+                expect(chat.find('.messageBox').find('.error.notice')).toHaveText('连接服务器失败!')
+                done()
+            })
+
         });
 
         it('receives joined message from others after join chat', () => {
@@ -49,7 +69,7 @@ describe('Chat', () => {
             expect(bob.find('.messageBox').find('.other.notice')).toHaveText('jack已加入聊天!')
         });
 
-        it('receives normal message from others after join chat', () => {
+        it('receives normal message from others after join chat', (done) => {
             let bob = join('bob')
             let jack = join('jack')
             server.ack()
@@ -58,14 +78,18 @@ describe('Chat', () => {
 
             jack.find('#message').simulate('change', {target: {value: 'hello'}})
             jack.find('#send').simulate('click')
-            jack.update()
 
-            server.hasSentMessageFrom('jack', 'hello')
-            bob.update()
-            expect(bob.find('.other.message .user')).toHaveText('jack')
-            expect(bob.find('.other.message .content')).toHaveText('hello')
-            expect(jack.find('.message .user')).toHaveText('我')
-            expect(jack.find('.message .content')).toHaveText('hello')
+            server.hasReceivedMessageFrom('jack', 'hello')
+            server.ack().finally(() => {
+                bob.update()
+                jack.update()
+                expect(bob.find('.other.message .user')).toHaveText('jack')
+                expect(bob.find('.other.message .content')).toHaveText('hello')
+                expect(jack.find('.message .user')).toHaveText('我')
+                expect(jack.find('.message .content')).toHaveText('hello')
+                done()
+            })
+
         });
     });
 

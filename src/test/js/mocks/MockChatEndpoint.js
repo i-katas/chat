@@ -4,15 +4,20 @@ export default class MockChatEndpoint extends ChatEndpoint {
     users = []
     messages = []
     eventListeners = []
+    pos = null
 
     join(user, eventListener) {
         this.users.push(user)
         this.eventListeners.push(eventListener)
+        this.pos = this.eventListeners.length - 1
         return {
-            send: (message) => {
-                this.messages.push({from: user, content: message})
-                this.eventListeners.filter((_, i) => this.users[i] !== user).forEach(listener =>
-                    listener.messageArrived({from: user, content: message}));
+            send: (content) => {
+                let message = {from: user, content};
+                this.messages.push(message)
+                return message.promise = new Promise((resolve, reject) => {
+                    message.resolve = resolve;
+                    message.reject = reject;
+                })
             }
         }
     }
@@ -21,21 +26,44 @@ export default class MockChatEndpoint extends ChatEndpoint {
         expect(this.users).toContain(user)
     }
 
-    hasSentMessageFrom(user, message) {
-        expect(this.messages).toContainEqual({from: user, content: message})
+    hasReceivedMessageFrom(user, message) {
+        expect(this.messages.map(it => ({from: it.from, content: it.content}))).toContainEqual({from: user, content: message})
     }
 
     ack() {
         let current = this.last();
-        this.eventListeners[current].userJoined({})
-        this.eventListeners.slice(0, current).forEach(listener => listener.userJoined({from: this.users[current]}))
+        if (current != null) {
+            this.eventListeners[current].userJoined({})
+            this.eventListeners.slice(0, current).forEach(listener => listener.userJoined({from: this.users[current]}))
+        }
+
+        let promises = this.messages.map(it => it.promise);
+        for (const message of this.messages.splice(0, this.messages.length)) {
+            this.send(message)
+        }
+        return Promise.all(promises)
     }
 
     fail() {
-        this.eventListeners[this.last()].failed()
+        let current = this.last();
+        if (current != null) {
+            this.eventListeners[current].failed()
+        }
+        let promises = this.messages.map(it => it.promise);
+        for (const message of this.messages.splice(0, this.messages.length)) {
+            message.reject()
+        }
+        return Promise.all(promises)
+    }
+
+    send(message) {
+        this.eventListeners.filter((_, i) => this.users[i] !== message.from).forEach(listener => listener.messageArrived(message));
+        message.resolve()
     }
 
     last() {
-        return this.eventListeners.length - 1
+        let value = this.pos
+        this.pos = null
+        return value
     }
 }

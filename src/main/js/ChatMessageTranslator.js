@@ -1,14 +1,15 @@
 export default chatListener => {
-    return ({data, type}) => {
+    return (event) => {
+        let {data: raw, type} = event
         if(type === 'error') {
             chatListener.failed()
             return;
         }
-        let event = data && JSON.parse(data);
-        if (event && typeof event === 'object') {
-            chatListener.messageArrived(event)
+        let data = raw && JSON.parse(raw);
+        if (data && typeof data === 'object') {
+            chatListener.messageArrived(data)
         } else {
-            chatListener.userJoined({from: event})
+            chatListener.userJoined({from: data})
         }
     }
 }

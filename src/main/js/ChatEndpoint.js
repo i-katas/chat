@@ -19,12 +19,14 @@ export default class ChatEndpoint {
     }
 
     waitForReady(ws) {
-        return new Promise(function onComplete(resolve) {
-            if (ws.readyState === 1) {
-                resolve(ws)
-                return
+        return new Promise(function onComplete(resolve, reject) {
+            switch (ws.readyState) {
+                case WebSocket.OPEN:
+                    return resolve(ws)
+                case WebSocket.CLOSED:
+                    return reject(ws)
             }
-            setTimeout(onComplete, 100, resolve)
+            setTimeout(onComplete, 100, resolve, reject)
         });
     }
 }

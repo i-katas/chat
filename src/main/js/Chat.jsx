@@ -25,13 +25,18 @@ export default class Chat extends React.Component {
                 this.setState({chat: chat})
             },
             messageArrived: (message) => this.addMessage({type: 'message', system: false, ...message}),
-            failed: () => this.addMessage({system: true, type: 'error notice', content: '连接服务器失败!'})
+            failed: this.fail
         })
     }
 
     send = (message) => {
         this.state.chat.send(message)
-        this.addMessage({type: 'message', system: true, from: '我', content: message})
+            .then(() => this.addMessage({type: 'message', system: true, from: '我', content: message}))
+            .catch(this.fail)
+    }
+
+    fail = () => {
+        this.addMessage({system: true, type: 'error notice', content: '连接服务器失败!'})
     }
 
     addMessage(message) {
