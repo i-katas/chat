@@ -41,7 +41,7 @@ public class ChatServer {
             private void dispatch(Object value) {
                 try {
                     session.getBasicRemote().sendText(valueToString(value));
-                } catch (IOException e) {
+                } catch (IllegalStateException | IOException e) {
                     //todo: exit to chat
                     e.printStackTrace();
                 }

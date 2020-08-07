@@ -20,7 +20,7 @@ export default class MessageBox extends React.Component {
                 </Message>
             )
         }
-        return <Message message={message} key={i}>{message.content}</Message>
+        return <Message message={message} key={i}><em>{message.content}</em></Message>
     }
 }
 

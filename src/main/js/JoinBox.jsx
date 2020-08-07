@@ -4,6 +4,7 @@ import string from './string'
 import withControlBox from "./withControlBox";
 
 const JoinBox = withControlBox({
+    type: 'joinBox',
     field(value, onChange) {
         return <input id='user' type='text' value={value} onChange={onChange}/>
     },

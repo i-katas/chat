@@ -1,3 +1,4 @@
+import '../scss/chat.scss'
 import React from 'react'
 import Chat from './Chat'
 import ChatEndpoint from './ChatEndpoint'

@@ -3,6 +3,7 @@ import PropTypes from 'prop-types'
 import withControlBox from "./withControlBox";
 
 const SendBox = withControlBox({
+    type: 'sendBox',
     field(value, onChange) {
         return <textarea id='message' value={value} onChange={onChange}/>
     },

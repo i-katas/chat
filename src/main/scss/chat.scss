@@ -1,0 +1,217 @@
+$chat_background: #eee;
+$input_line_height: 1.5em;
+$input_padding: 15px;
+$box_border_color: #aaa;
+$join_box_height: $input_line_height;
+$send_box_height: 3 * $input_line_height;
+$button_width: 100px;
+$message_background: #00e676;
+$message_background2: #fff;
+$message_border_radius: 6px;
+$message_arrow_size: 5px;
+$message_arrow_margin: 5px;
+$user_height: 1.5em;
+$font_size: 2em;
+$send_button_background: #2e7d32;
+
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  background: $chat_background;
+}
+
+%clearfix {
+  content: " ";
+  display: block;
+  width: 0;
+  height: 0;
+  clear: both;
+}
+
+.chat {
+  font-size: $font_size;
+  @extend body;
+
+  .messageBox {
+    background: $chat_background;
+    padding: 20px 10px $send_box_height;
+    height: auto;
+    @extend body;
+
+    .message, .notice {
+      margin: -10px 0 20px 0;
+    }
+
+    .message {
+      font-size: 0.8em;
+      .user {
+        float: left;
+        height: $user_height;
+        line-height: $user_height;
+
+        &:after {
+          @extend %clearfix;
+        }
+      }
+
+      .content {
+        clear: both;
+        float: left;
+        background: linear-gradient(darken($message_background, 15%), $message_background);
+        border-radius: $message_border_radius;
+        border-top-left-radius: 0;
+        padding: .5em 1em;
+        position: relative;
+        box-shadow: 1px 1px 3px darken($message_background, 30%);
+
+        &::after {
+          right: 100%;
+          top: -$message_arrow_size;
+          left: $message_arrow_margin;
+          border: $message_arrow_size solid transparent;
+          content: " ";
+          height: 0;
+          width: 0;
+          position: absolute;
+          margin-top: -$message_arrow_size;
+        }
+
+        &:after {
+          border-bottom-color: darken($message_background, 15%);
+        }
+      }
+
+      &.other {
+        .user {
+          float: right;
+        }
+
+        .content {
+          position: relative;
+          float: right;
+          right: 0;
+          background: linear-gradient(darken($message_background2, 5%), $message_background2);
+          box-shadow: 1px 1px 3px darken($message_background2, 15%);
+          border-top-left-radius: $message_border_radius;
+          border-top-right-radius: 0;
+
+          &:after {
+            border-bottom-color: darken($message_background2, 5%);
+            left: auto;
+            right: $message_arrow_size;
+          }
+        }
+      }
+
+      &:after {
+        @extend %clearfix;
+      }
+    }
+
+    .notice {
+      text-align: center;
+    }
+
+    .notice em {
+      border-radius: $message_border_radius;
+      color: darken($chat_background, 50%);
+      background: darken($chat_background, 10%);
+      display: inline-block;
+      font-size: 0.45em;
+      padding: .5em 1em;
+    }
+
+    &:after {
+      @extend %clearfix;
+    }
+  }
+
+  %box {
+    width: 100%;
+    position: absolute;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    line-height: $input_line_height;
+    box-sizing: border-box;
+    outline: none;
+  }
+
+  %enabled_button {
+    background: linear-gradient($send_button_background, lighten($send_button_background, 30%));
+    box-shadow: 1px 1px 5px darken($send_button_background, 5%);
+    color: #fff;
+  }
+
+  .joinBox, .sendBox {
+    background: #fff;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    border-top: .3px solid $box_border_color;
+    box-shadow: 0 -1px 2px darken($box_border_color, 10%);
+  }
+
+  .joinBox {
+    @extend %box;
+    height: $join_box_height;
+
+    #user, #join {
+      height: 100%;
+      @extend %box;
+    }
+
+    #user {
+      box-sizing: border-box;
+      font-size: 1em;
+      padding: 0 $button_width+$input_padding 0 $input_padding;
+    }
+
+    #join {
+      width: $button_width;
+      top: 0;
+      right: 0;
+    }
+
+    #join:enabled {
+      @extend %enabled_button;
+    }
+  }
+
+  .sendBox {
+    height: $send_box_height;
+    @extend %box;
+
+    #message, #send {
+      @extend %box;
+    }
+
+    #message {
+      font-size: 1em;
+      top: $input_padding;
+      bottom: $input_padding;
+      left: $input_padding;
+      padding-right: $button_width+$input_padding;
+      overflow: hidden;
+      resize: none;
+    }
+
+    #send {
+      $send_button_size: $button_width * 2 / 3;
+      width: $send_button_size;
+      height: $send_button_size;
+      border-radius: 50%;
+      top: 50%;
+      right: ($button_width - $send_button_size)/2;
+      margin-top: -$send_button_size/2;
+    }
+
+    #send:enabled {
+      @extend %enabled_button;
+    }
+  }
+}
+
