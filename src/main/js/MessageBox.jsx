@@ -1,5 +1,6 @@
 import React from "react";
 import PropTypes from 'prop-types'
+import string from "./string";
 
 export default class MessageBox extends React.Component {
     render() {
@@ -12,15 +13,16 @@ export default class MessageBox extends React.Component {
     }
 
     renderMessage(message, i) {
+        let content = {__html: string.escape(message.content)};
         if (message.type == 'message') {
             return (
                 <Message message={message} key={i}>
                     <div className='user'>{message.from}</div>
-                    <div className='content'>{message.content}</div>
+                    <div className='content' dangerouslySetInnerHTML={content}/>
                 </Message>
             )
         }
-        return <Message message={message} key={i}><em>{message.content}</em></Message>
+        return <Message message={message} key={i}><em dangerouslySetInnerHTML={content}/></Message>
     }
 }
 

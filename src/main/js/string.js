@@ -1,8 +1,11 @@
 export default {
     isBlank(s) {
-        return !s || !/\S/.test(s)
+        return !s?.match(/\S/)
     },
     trim(s) {
-        return s && s.replace(/^\s+|\s+$/g, '')
+        return s?.replace(/^\s+|\s+$/g, '')
+    },
+    escape(s) {
+        return s?.replace(/\n/g, '<br/>');
     }
 }

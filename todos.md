@@ -6,4 +6,3 @@
     - scroll to bottom when show a message
 - Notify when someone left out of the chat
 - Disconnect when dispatch notification/message failed
-- Escape line-break to <br> for all messages/notifications

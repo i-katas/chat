@@ -17,6 +17,13 @@ describe('string', () => {
         expect(string.trim('a b')).toBe('a b')
         expect(string.trim('a  ')).toBe('a')
         expect(string.trim('  a')).toBe('a')
-        expect(string.trim(null)).toBeNull()
+        expect(string.trim(null)).toBeUndefined()
     });
+
+    it('escape line-break to <br/>', () => {
+        expect(string.escape('a')).toBe('a')
+        expect(string.escape('\n')).toBe('<br/>')
+        expect(string.escape('\n\n')).toBe('<br/><br/>')
+        expect(string.escape(null)).toBeUndefined()
+    })
 });

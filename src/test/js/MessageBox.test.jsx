@@ -26,6 +26,13 @@ describe('MessageBox rendering', () => {
             expect(notice).toHaveClassName('other')
             expect(notice).toHaveText('ok')
         })
+
+        it('escape line-break to <br/>', () => {
+            let messageBox = mount(<MessageBox messages={[{type: TYPE_NOTICE, system: true, content: 'first\nlast'}]}/>);
+
+            expect(messageBox.html()).toEqual(expect.stringContaining('first<br>last'))
+        })
+
     });
 
     describe('normal message', () => {
@@ -46,5 +53,12 @@ describe('MessageBox rendering', () => {
             expect(message.find('.content')).toHaveText('ok')
             expect(message).toHaveClassName('other')
         })
+
+        it('escape line-break to <br/>', () => {
+            let messageBox = mount(<MessageBox messages={[{type: TYPE_MESSAGE, system: true, content: 'first\nlast'}]}/>);
+
+            expect(messageBox.html()).toEqual(expect.stringContaining('first<br>last'))
+        })
+
     });
 });
