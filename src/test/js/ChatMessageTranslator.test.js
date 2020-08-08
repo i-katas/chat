@@ -13,25 +13,19 @@ describe('ChatMessageTranslator', () => {
     it('translate self joining message', () => {
         translateEvent({data: null})
 
-        chatListener.hasReceivedJoinedRequestFrom(null)
+        chatListener.hasReceivedJoinRequestFrom(null)
     });
 
     it('translate joining message from others', () => {
         translateEvent({data: '"jack"'})
 
-        chatListener.hasReceivedJoinedRequestFrom('jack')
+        chatListener.hasReceivedJoinRequestFrom('jack')
     });
 
     it('translate normal message from others', () => {
         translateEvent({data: '{"from":"jack", "message": "ok"}'})
 
         chatListener.hasReceivedMessageFrom('jack', 'ok')
-    });
-
-    it('report error when failed', () => {
-        translateEvent({type: 'error'})
-
-        chatListener.hasFailed()
     });
 });
 

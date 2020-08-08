@@ -19,10 +19,12 @@ describe('Chat', () => {
             let chat = join('bob');
 
             server.hasReceivedJoinRequestFrom('bob');
-            server.ack();
-            chat.update()
 
-            expect(chat.find('.messageBox').find('.notice')).toHaveText('你已加入聊天!')
+            server.ack().then(() => {
+                chat.update()
+
+                expect(chat.find('.messageBox').find('.notice')).toHaveText('你已加入聊天!')
+            });
         });
 
         it('reports error message when join chat failed', (done) => {
@@ -50,9 +52,7 @@ describe('Chat', () => {
                 server.hasReceivedMessageFrom('bob', 'hello')
                 server.fail().catch(() => {
                     chat.update()
-                    chat.find('.messageBox').find('.error.notice').forEach(it => {
-                        expect(it).toHaveText('连接服务器失败!')
-                    })
+                    expect(chat.find('.messageBox').find('.error.notice')).toHaveText('连接服务器失败!')
                     done()
                 })
             });

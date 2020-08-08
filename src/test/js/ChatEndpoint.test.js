@@ -12,7 +12,7 @@ describe('ChatEndpoint', () => {
     it('connect to chat server', () => {
         return chat.join('bob', {
             userJoined({from}) {
-                server.hasReceivedJoinedRequestFrom('bob');
+                server.hasReceivedJoinRequestFrom('bob');
                 expect(from).toBeUndefined()
             }
         });
@@ -30,7 +30,7 @@ describe('ChatEndpoint', () => {
 
         chat.join('jack', {
             userJoined() {
-                server.hasReceivedJoinedRequestFrom('jack');
+                server.hasReceivedJoinRequestFrom('jack');
             }
         });
     });
@@ -51,13 +51,7 @@ describe('ChatEndpoint', () => {
     it('report error if join chat failed', (done) => {
         server.stop()
 
-        expect.assertions(1)
-
-        chat.join('bob', {
-            failed() {
-                expect(true).toBe(true)
-            }
-        }).catch(() => done());
+        chat.join('bob', {}).catch(() => done());
     });
 
     it('report error if send message failed', (done) => {
@@ -96,7 +90,7 @@ class MockWebSocketServer {
         return `ws://localhost:${this.server.address().port}/chat`
     }
 
-    hasReceivedJoinedRequestFrom(user) {
+    hasReceivedJoinRequestFrom(user) {
         expect(this.users).toContain(user)
     }
 
