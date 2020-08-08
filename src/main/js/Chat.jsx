@@ -19,14 +19,11 @@ export default class Chat extends React.Component {
     }
 
     join = (user) => {
-        let chat = this.props.endpoint.join(user, {
-            userJoined: ({from}) => {
-                this.show({from, type: 'notice', content: from ? `${from}已加入聊天!` : '你已加入聊天!'})
-                this.setState({chat: chat})
-            },
+        this.props.endpoint.join(user, {
+            userJoined: ({from}) => this.show({from, type: 'notice', content: from ? `${from}已加入聊天!` : '你已加入聊天!'}),
             messageArrived: (message) => this.show({type: 'message', ...message}),
             failed: this.fail
-        })
+        }).then(chat => this.setState({chat})).catch(this.fail)
     }
 
     send = (message) => {

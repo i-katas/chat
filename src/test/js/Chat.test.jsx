@@ -5,9 +5,7 @@ import React from 'react'
 
 describe('Chat', () => {
     let server;
-    beforeEach(() => {
-        server = new MockChatEndpoint();
-    })
+    beforeEach(() => server = new MockChatEndpoint())
 
     function join(name) {
         let chat = mount(<Chat endpoint={server}/>);
@@ -29,8 +27,9 @@ describe('Chat', () => {
 
         it('reports error message when join chat failed', (done) => {
             let chat = join('bob');
+            server.hasReceivedJoinRequestFrom('bob')
 
-            server.fail().finally(()=>{
+            server.fail().catch(() => {
                 chat.update()
 
                 expect(chat.find('.messageBox').find('.error.notice')).toHaveText('连接服务器失败!')
@@ -41,20 +40,22 @@ describe('Chat', () => {
 
         it('reports error message when send message failed', (done) => {
             let chat = join('bob');
-            server.ack();
-            chat.update()
-
-            chat.find('#message').simulate('change', {target: {value: 'hello'}})
-            chat.find('#send').simulate('click')
-            chat.update()
-
-            server.hasReceivedMessageFrom('bob', 'hello')
-            server.fail().catch(() => {
+            server.ack().then(() => {
                 chat.update()
-                expect(chat.find('.messageBox').find('.error.notice')).toHaveText('连接服务器失败!')
-                done()
-            })
 
+                chat.find('#message').simulate('change', {target: {value: 'hello'}})
+                chat.find('#send').simulate('click')
+                chat.update()
+
+                server.hasReceivedMessageFrom('bob', 'hello')
+                server.fail().catch(() => {
+                    chat.update()
+                    chat.find('.messageBox').find('.error.notice').forEach(it => {
+                        expect(it).toHaveText('连接服务器失败!')
+                    })
+                    done()
+                })
+            });
         });
 
         it('receives joined message from others after join chat', () => {
@@ -72,24 +73,24 @@ describe('Chat', () => {
         it('receives normal message from others after join chat', (done) => {
             let bob = join('bob')
             let jack = join('jack')
-            server.ack()
-            bob.update()
-            jack.update()
 
-            jack.find('#message').simulate('change', {target: {value: 'hello'}})
-            jack.find('#send').simulate('click')
-
-            server.hasReceivedMessageFrom('jack', 'hello')
             server.ack().finally(() => {
-                bob.update()
                 jack.update()
-                expect(bob.find('.other.message .user')).toHaveText('jack')
-                expect(bob.find('.other.message .content')).toHaveText('hello')
-                expect(jack.find('.message .user')).toHaveText('我')
-                expect(jack.find('.message .content')).toHaveText('hello')
-                done()
-            })
 
+                jack.find('#message').simulate('change', {target: {value: 'hello'}})
+                jack.find('#send').simulate('click')
+
+                server.hasReceivedMessageFrom('jack', 'hello')
+                server.ack().finally(() => {
+                    bob.update()
+                    jack.update()
+                    expect(bob.find('.other.message .user')).toHaveText('jack')
+                    expect(bob.find('.other.message .content')).toHaveText('hello')
+                    expect(jack.find('.message .user')).toHaveText('我')
+                    expect(jack.find('.message .content')).toHaveText('hello')
+                    done()
+                })
+            })
         });
     });
 
@@ -97,11 +98,13 @@ describe('Chat', () => {
         it('displays sending components after joined', () => {
             let chat = join('bob');
 
-            server.ack()
-            chat.update()
+            server.ack().then(() => {
+                chat.update()
 
-            expect(chat.find('#user')).not.toExist()
-            expect(chat.find('#message')).toExist()
+                expect(chat.find('#user')).not.toExist()
+                expect(chat.find('#message')).toExist()
+            })
         });
     });
 })
+

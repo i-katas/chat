@@ -1,17 +1,18 @@
 export default class MockChatListener {
-    joinedUsers = []
+    users = []
     messages = []
 
     userJoined(user) {
-        this.joinedUsers.push(user)
+        this.users.push(user)
     }
 
     messageArrived(message) {
         this.messages.push(message)
     }
 
+    //todo: rename to hasReceivedJoinRequestFrom
     hasReceivedJoinedRequestFrom(user) {
-        expect(this.joinedUsers).toContainEqual({from: user})
+        expect(this.users).toContainEqual({from: user})
     }
 
     hasReceivedMessageFrom(user, message) {
@@ -19,11 +20,10 @@ export default class MockChatListener {
     }
 
     failed() {
-        this.failed = true
+        this.error = true
     }
 
     hasFailed() {
-        expect(this.failed).toBe(true)
+        expect(this.error).toBe(true)
     }
-
 }

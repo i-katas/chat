@@ -9,24 +9,20 @@ describe('ChatEndpoint', () => {
         chat = new ChatEndpoint(server.location)
     })
 
-    it('connect to chat server', (done) => {
-        chat.join('bob', {
+    it('connect to chat server', () => {
+        return chat.join('bob', {
             userJoined({from}) {
                 server.hasReceivedJoinedRequestFrom('bob');
                 expect(from).toBeUndefined()
-                done()
             }
         });
     });
 
     it('send joined messages from others to established connections', (done) => {
-        let participants = []
         chat.join('bob', {
             userJoined({from}) {
-                participants.push(from)
-                server.hasReceivedJoinedRequestFrom('bob');
-                if (participants.length === 2) {
-                    expect(participants).toEqual([undefined, 'jack'])
+                if (from) {
+                    expect(from).toEqual('jack')
                     done()
                 }
             }
@@ -49,26 +45,27 @@ describe('ChatEndpoint', () => {
             }
         });
 
-        let jack = chat.join('jack', new MockChatListener());
-        jack.send('ok')
+        chat.join('jack', new MockChatListener()).then(jack => jack.send('ok'))
     });
 
     it('report error if join chat failed', (done) => {
         server.stop()
 
+        expect.assertions(1)
+
         chat.join('bob', {
             failed() {
-                done()
+                expect(true).toBe(true)
             }
-        });
+        }).catch(() => done());
     });
 
     it('report error if send message failed', (done) => {
-        let bob = chat.join('bob', new MockChatListener());
+        let listener = new MockChatListener();
 
-        server.stop()
-
-        bob.send('any').catch(() => done())
+        chat.join('bob', listener).then(bob => {
+            server.stop(() => bob.send('any').then(done).catch(() => done()))
+        })
     });
 
     afterEach(() => server.stop())
@@ -103,7 +100,7 @@ class MockWebSocketServer {
         expect(this.users).toContain(user)
     }
 
-    stop() {
-        this.server.close()
+    stop(callback) {
+        this.server.close(callback)
     }
 }
