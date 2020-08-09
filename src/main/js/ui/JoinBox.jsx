@@ -1,6 +1,6 @@
 import React from "react";
 import PropTypes from 'prop-types'
-import string from './string'
+import string from '../util/string'
 import withControlBox from "./withControlBox";
 
 const JoinBox = withControlBox({

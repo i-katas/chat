@@ -1,4 +1,4 @@
-import SendBox from 'SendBox'
+import SendBox from 'ui/SendBox'
 import {mount} from 'enzyme'
 import React from 'react'
 

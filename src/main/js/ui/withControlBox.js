@@ -1,5 +1,5 @@
 import React from "react";
-import string from "./string";
+import string from "../util/string";
 
 export default function withControlBox({type, field, button}) {
     return class extends React.Component {

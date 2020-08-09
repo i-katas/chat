@@ -1,5 +1,5 @@
 import React from 'react'
-import ChatEndpoint from './ws/ChatEndpoint'
+import ChatEndpoint from '../ws/ChatEndpoint'
 import MessageBox from './MessageBox'
 import JoinBox from './JoinBox'
 import SendBox from './SendBox'

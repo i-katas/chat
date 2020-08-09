@@ -1,4 +1,4 @@
-import JoinBox from 'JoinBox'
+import JoinBox from 'ui/JoinBox'
 import {mount} from 'enzyme'
 import React from 'react'
 

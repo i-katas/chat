@@ -1,5 +1,5 @@
-import MockChatEndpoint from './ws/mocks/MockChatEndpoint'
-import Chat from 'Chat'
+import MockChatEndpoint from '../ws/mocks/MockChatEndpoint'
+import Chat from 'ui/Chat'
 import {mount} from 'enzyme'
 import React from 'react'
 

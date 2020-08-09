@@ -1,6 +1,6 @@
 import '../scss/chat.scss'
 import React from 'react'
-import Chat from './Chat'
+import Chat from './ui/Chat'
 import ChatEndpoint from './ws/ChatEndpoint'
 import ReactDOM from 'react-dom'
 

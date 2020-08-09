@@ -1,5 +1,5 @@
 import React from 'react';
-import MessageBox from 'MessageBox'
+import MessageBox from 'ui/MessageBox'
 
 const TYPE_MESSAGE = 'message';
 const TYPE_NOTICE = 'notice';
