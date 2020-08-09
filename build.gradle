@@ -84,6 +84,3 @@ tasks.withType(NpmTask) {
     environment = [production: true, buildDir: warGeneratedDir, webSocketServerURL: "ws://localhost:${serverPort}${contextPath}"]
 }
 
-clean {
-    delete(fileTree(webAppDirName))
-}
