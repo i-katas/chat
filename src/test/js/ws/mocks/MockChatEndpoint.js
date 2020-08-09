@@ -1,4 +1,4 @@
-import ChatEndpoint from "ChatEndpoint";
+import ChatEndpoint from "ws/ChatEndpoint";
 
 export default class MockChatEndpoint extends ChatEndpoint {
     tasks = []

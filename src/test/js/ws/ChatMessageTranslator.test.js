@@ -1,4 +1,4 @@
-import translatorFor from 'ChatMessageTranslator';
+import translatorFor from 'ws/ChatMessageTranslator';
 import MockChatListener from './mocks/MockChatListener'
 
 describe('ChatMessageTranslator', () => {

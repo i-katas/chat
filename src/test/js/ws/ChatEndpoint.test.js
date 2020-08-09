@@ -1,4 +1,4 @@
-import ChatEndpoint from 'ChatEndpoint'
+import ChatEndpoint from 'ws/ChatEndpoint'
 import WebSocket from 'ws'
 import MockChatListener from "./mocks/MockChatListener";
 
