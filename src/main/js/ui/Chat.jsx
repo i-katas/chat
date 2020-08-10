@@ -20,9 +20,9 @@ export default class Chat extends React.Component {
 
     join = (user) => {
         this.props.endpoint.join(user, {
-            userJoined: ({from}) => this.show({from, type: 'notice', content: from ? `${from}已加入聊天!` : '你已加入聊天!'}),
+            userJoined: ({from}) => this.show({from, type: 'notice', content: `${from}已加入聊天!`}),
             messageArrived: (message) => this.show({type: 'message', ...message})
-        }).then(chat => this.setState({chat})).catch(this.fail)
+        }).then(chat => this.show({type: 'notice', content: '你已加入聊天!'}, chat)).catch(this.fail)
     }
 
     send = (message) => {
@@ -35,8 +35,11 @@ export default class Chat extends React.Component {
         this.show({type: 'error notice', content: '连接服务器失败!'})
     }
 
-    show(message) {
-        this.setState(prevState => ({prevState, messages: prevState.messages.concat({...message, system: !message.from, from: message.from || '我'})}))
+    show(message, chat) {
+        this.setState(prevState => ({
+            chat: chat || prevState.chat,
+            messages: prevState.messages.concat({...message, system: !message.from, from: message.from || '我'})
+        }))
     }
 }
 

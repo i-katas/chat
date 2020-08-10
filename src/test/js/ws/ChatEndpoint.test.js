@@ -10,12 +10,9 @@ describe('ChatEndpoint', () => {
     })
 
     it('connect to chat server', () => {
-        return chat.join('bob', {
-            userJoined({from}) {
-                server.hasReceivedJoinRequestFrom('bob');
-                expect(from).toBeUndefined()
-            }
-        });
+        let UNUSED_LISTENER = {};
+
+        return chat.join('bob', UNUSED_LISTENER);
     });
 
     it('send joined messages from others to established connections', (done) => {

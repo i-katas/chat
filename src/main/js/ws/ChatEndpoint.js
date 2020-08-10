@@ -5,11 +5,9 @@ export default class ChatEndpoint {
         this.serverLocation = serverLocation;
     }
 
-    join(user, eventListener) {
+    join(user, chatMessageListener) {
         let ws = new WebSocket(`${this.serverLocation}/${user}`)
-        let translator = chatMessageTranslator(eventListener)
-        ws.addEventListener('open', translator)
-        ws.addEventListener('message', translator)
+        ws.addEventListener('message', chatMessageTranslator(chatMessageListener))
         return this.waitForReady(ws).then(ws => ({
             send: (message) => {
                 return this.waitForReady(ws).then(() => ws.send(message))

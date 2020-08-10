@@ -15,7 +15,7 @@ describe('Chat', () => {
     }
 
     describe('interaction', () => {
-        it('shows joined message after join chat success', () => {
+        it('shows joined message after join chat success', done => {
             let chat = join('bob');
 
             server.hasReceivedJoinRequestFrom('bob');
@@ -23,11 +23,14 @@ describe('Chat', () => {
             server.ack().then(() => {
                 chat.update()
 
-                expect(chat.find('.messageBox').find('.notice')).toHaveText('你已加入聊天!')
+                setTimeout(() => {
+                    expect(chat.find('.messageBox').find('.notice')).toHaveText('你已加入聊天!')
+                    done()
+                })
             });
         });
 
-        it('reports error message when join chat failed', (done) => {
+        it('reports error message when join chat failed', done => {
             let chat = join('bob');
             server.hasReceivedJoinRequestFrom('bob')
 
@@ -40,7 +43,7 @@ describe('Chat', () => {
             });
         });
 
-        it('reports error message when send message failed', (done) => {
+        it('reports error message when send message failed', done => {
             let chat = join('bob');
             server.ack().then(() => {
                 chat.update()
@@ -58,19 +61,21 @@ describe('Chat', () => {
             });
         });
 
-        it('receives joined message from others after join chat', () => {
+        it('receives joined message from others after join chat', done => {
             let bob = join('bob')
             let jack = join('jack')
 
-            server.ack();
+            server.ack().then(() => {
+                jack.update()
+                bob.update()
 
-            jack.update()
-            bob.update()
-            expect(jack.find('.messageBox').find('.other.notice')).toHaveLength(0)
-            expect(bob.find('.messageBox').find('.other.notice')).toHaveText('jack已加入聊天!')
+                expect(jack.find('.messageBox').find('.other.notice')).toHaveLength(0)
+                expect(bob.find('.messageBox').find('.other.notice')).toHaveText('jack已加入聊天!')
+                done()
+            });
         });
 
-        it('receives normal message from others after join chat', (done) => {
+        it('receives normal message from others after join chat', done => {
             let bob = join('bob')
             let jack = join('jack')
 
@@ -95,7 +100,7 @@ describe('Chat', () => {
     });
 
     describe('ui', () => {
-        it('displays sending components after joined', () => {
+        it('displays sending components after joined', done => {
             let chat = join('bob');
 
             server.ack().then(() => {
@@ -103,6 +108,7 @@ describe('Chat', () => {
 
                 expect(chat.find('#user')).not.toExist()
                 expect(chat.find('#message')).toExist()
+                done()
             })
         });
     });

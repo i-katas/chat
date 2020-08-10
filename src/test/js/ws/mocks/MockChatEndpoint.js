@@ -12,7 +12,6 @@ export default class MockChatEndpoint extends ChatEndpoint {
         let current = this.eventListeners.length - 1
 
         return this.start(resolve => {
-            eventListener.userJoined({})
             this.eventListeners.slice(0, current).forEach(listener => listener.userJoined({from: user}))
             resolve({
                 send: (content) => {
