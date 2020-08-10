@@ -55,7 +55,7 @@ export default class MockChatEndpoint extends ChatEndpoint {
     }
 
     fail() {
-        return this.run(it => it.reject())
+        return this.run(it => it.reject()).catch(() => {/**/})
     }
 
     run(handler) {

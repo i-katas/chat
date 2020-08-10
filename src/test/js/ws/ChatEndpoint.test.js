@@ -1,35 +1,29 @@
+import '@babel/polyfill'
 import ChatEndpoint from 'ws/ChatEndpoint'
 import WebSocket from 'ws'
-import MockChatListener from "./mocks/MockChatListener";
 
 describe('ChatEndpoint', () => {
     let server, chat;
+    const UNUSED_MESSAGE_LISTENER = {};
     beforeEach(() => {
         server = new MockWebSocketServer()
         chat = new ChatEndpoint(server.location)
     })
 
-    it('connect to chat server', () => {
-        let UNUSED_LISTENER = {};
-
-        return chat.join('bob', UNUSED_LISTENER);
+    it('connect to chat server', async () => {
+        await chat.join('bob', UNUSED_MESSAGE_LISTENER);
     });
 
     it('send joined messages from others to established connections', (done) => {
         chat.join('bob', {
             userJoined({from}) {
-                if (from) {
-                    expect(from).toEqual('jack')
-                    done()
-                }
+                server.hasReceivedJoinRequestFrom('jack');
+                expect(from).toEqual('jack')
+                done()
             }
         });
 
-        chat.join('jack', {
-            userJoined() {
-                server.hasReceivedJoinRequestFrom('jack');
-            }
-        });
+        chat.join('jack');
     });
 
     it('receives normal message from others', (done) => {
@@ -40,21 +34,19 @@ describe('ChatEndpoint', () => {
                 expect(message).toEqual({from: 'jack', content: 'ok'})
                 done()
             }
-        });
+        })
 
-        chat.join('jack', new MockChatListener()).then(jack => jack.send('ok'))
+        chat.join('jack', UNUSED_MESSAGE_LISTENER).then(jack => jack.send('ok'));
     });
 
     it('report error if join chat failed', (done) => {
-        server.stop()
-
-        chat.join('bob', {}).catch(() => done());
+        server.stop(() => {
+            chat.join('bob', UNUSED_MESSAGE_LISTENER).catch(() => done());
+        })
     });
 
     it('report error if send message failed', (done) => {
-        let listener = new MockChatListener();
-
-        chat.join('bob', listener).then(bob => {
+        chat.join('bob', UNUSED_MESSAGE_LISTENER).then(bob => {
             server.stop(() => bob.send('any').then(done).catch(() => done()))
         })
     });
