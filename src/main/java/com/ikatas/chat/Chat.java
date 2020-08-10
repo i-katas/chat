@@ -12,7 +12,17 @@ public class Chat {
         broadcastBy(user, listener -> listener.userJoined(user));
         chatListeners.put(user, chatListener);
 
-        return message -> broadcastBy(user, listener -> listener.messageReceived(user, message));
+        return new ChatChannel() {
+            @Override
+            public void send(String message) {
+                broadcastBy(user, listener -> listener.messageReceived(user, message));
+            }
+
+            @Override
+            public void close() {
+                chatListeners.remove(user);
+            }
+        };
     }
 
     private void broadcastBy(String user, Consumer<ChatListener> action) {
@@ -25,5 +35,7 @@ public class Chat {
 
     public interface ChatChannel {
         void send(String message);
+
+        void close();
     }
 }

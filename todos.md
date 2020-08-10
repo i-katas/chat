@@ -2,7 +2,7 @@
 - Join to chat 
     - display all joined users after joined into the chat
     - ~~separate join action from join message in chatMessageListener~~
-    - encapsulate the chat related events in Promise, e.g: join, error, close event
+    - ?encapsulate the chat related events in Promise, e.g: join, error, close event
 - ~~Send a notification to everyone who has joined in chat~~
 - Notify when someone left out of the chat
 - Scroll to the bottom of the message box when show a message if scrollbar at the bottom
@@ -12,4 +12,4 @@
 
 # Server
 - Disconnect when dispatch notification/message failed on server
-- Close chat channel when user has disconnected from chat
+- ~~Close chat channel when user has disconnected from chat~~

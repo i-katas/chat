@@ -3,6 +3,7 @@ package com.ikatas.chat;
 import com.ikatas.chat.Chat.ChatChannel;
 import org.json.JSONObject;
 
+import javax.websocket.OnClose;
 import javax.websocket.OnMessage;
 import javax.websocket.OnOpen;
 import javax.websocket.Session;
@@ -52,5 +53,10 @@ public class ChatServer {
     @OnMessage
     public void onMessage(String message) {
         channel.send(message);
+    }
+
+    @OnClose
+    public void disconnect() {
+        channel.close();
     }
 }
