@@ -1,4 +1,4 @@
-package com.ikatas.chat;
+package com.ikatas.chat.api;
 
 public interface ChatMessageListener {
     void userJoined(String user);

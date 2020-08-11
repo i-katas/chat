@@ -1,13 +1,17 @@
-package com.ikatas.chat;
+package com.ikatas.chat.mem;
+
+import com.ikatas.chat.api.Chat;
+import com.ikatas.chat.api.ChatMessageListener;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
-public class Chat {
+public class SimpleChat implements Chat {
     private final Map<String, ChatMessageListener> messageListeners = new ConcurrentHashMap<>();
 
+    @Override
     public ChatChannel join(String user, ChatMessageListener chatMessageListener) {
         SimpleChatChannel channel = new SimpleChatChannel(user);
         channel.join(chatMessageListener);
@@ -54,11 +58,4 @@ public class Chat {
         return messageListeners.entrySet().stream().filter(it -> !it.getKey().equals(user)).map(Map.Entry::getValue);
     }
 
-    public interface ChatChannel {
-
-        void send(String message);
-
-        void close();
-
-    }
 }

@@ -1,6 +1,8 @@
 package com.ikatas.chat;
 
-import com.ikatas.chat.Chat.ChatChannel;
+import com.ikatas.chat.api.Chat;
+import com.ikatas.chat.api.ChatMessageListener;
+import com.ikatas.chat.mem.SimpleChat;
 
 import javax.websocket.OnClose;
 import javax.websocket.OnMessage;
@@ -9,9 +11,11 @@ import javax.websocket.Session;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 
+import static com.ikatas.chat.api.Chat.ChatChannel;
+
 @ServerEndpoint("/{user}")
 public class ChatServer {
-    private static final Chat chat = new Chat();
+    private static final Chat chat = new SimpleChat();
     private ChatChannel channel;
 
     @OnOpen
@@ -19,7 +23,7 @@ public class ChatServer {
         channel = chat.join(user, chatMessageDispatcherFor(session));
     }
 
-    private ChatMessageDispatcher chatMessageDispatcherFor(Session session) {
+    private ChatMessageListener chatMessageDispatcherFor(Session session) {
         return new ChatMessageDispatcher(session.getBasicRemote(), ex -> channel.close());
     }
 

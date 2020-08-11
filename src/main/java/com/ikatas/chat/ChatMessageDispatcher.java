@@ -1,5 +1,6 @@
 package com.ikatas.chat;
 
+import com.ikatas.chat.api.ChatMessageListener;
 import org.json.JSONObject;
 
 import javax.websocket.RemoteEndpoint;

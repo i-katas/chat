@@ -1,5 +1,6 @@
-package com.ikatas.chat;
+package com.ikatas.chat.api;
 
+import com.ikatas.chat.mem.SimpleChat;
 import org.json.JSONTokener;
 import org.junit.Test;
 
@@ -8,13 +9,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static com.ikatas.chat.api.Chat.ChatChannel;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.fail;
 import static org.junit.internal.matchers.ThrowableMessageMatcher.hasMessage;
 
 public class ChatTest {
-    private final Chat chat = new Chat();
+    private final Chat chat = new SimpleChat();
     private final MockChatMessageListener frontListener = new MockChatMessageListener();
     private final MockChatMessageListener backListener = new MockChatMessageListener();
 
@@ -50,7 +52,7 @@ public class ChatTest {
 
     @Test
     public void failsToSendingMessageIfChannelWasClosed() {
-        Chat.ChatChannel channel = chat.join("bob", backListener);
+        ChatChannel channel = chat.join("bob", backListener);
 
         channel.close();
 
