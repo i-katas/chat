@@ -9,29 +9,37 @@ public class Chat {
     private final Map<String, ChatMessageListener> messageListeners = new ConcurrentHashMap<>();
 
     public ChatChannel channelFor(String user, ChatMessageListener chatMessageListener) {
-        messageListeners.put(user, chatMessageListener);
         return new ChatChannel() {
             private volatile boolean closed;
 
             @Override
             public void join() {
+                ensureOpen();
+                messageListeners.put(user, chatMessageListener);
                 broadcast(listener -> listener.userJoined(user));
             }
 
             @Override
             public void send(String message) {
                 ensureOpen();
+                ensureJoined();
                 broadcast(listener -> listener.messageReceived(user, message));
-            }
-
-            private void broadcast(Consumer<ChatMessageListener> action) {
-                chatMessageListeners(user).forEach(action);
             }
 
             private void ensureOpen() {
                 if (closed) {
                     throw new IllegalStateException("Channel closed");
                 }
+            }
+
+            private void ensureJoined() {
+                if (!messageListeners.containsKey(user)) {
+                    throw new IllegalStateException("Channel didn't joined");
+                }
+            }
+
+            private void broadcast(Consumer<ChatMessageListener> action) {
+                chatMessageListeners(user).forEach(action);
             }
 
             @Override
