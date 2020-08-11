@@ -20,20 +20,20 @@ public class ChatTest {
 
     @Test
     public void receivesAJoinedMessageAfterOthersJoined() {
-        chat.join("bob", frontListener);
+        join("bob", frontListener);
         frontListener.hasNoJoinedMessageReceived();
 
-        chat.join("jack", backListener);
+        join("jack", backListener);
         frontListener.hasReceivedJoinedMessageFrom("jack");
         backListener.hasNoJoinedMessageReceived();
     }
 
     @Test
     public void receivesAMessageSentByOthers() {
-        chat.join("bob", frontListener).send("first");
+        join("bob", frontListener).send("first");
         frontListener.hasNoMessageReceivedFromOthers();
 
-        chat.join("jack", backListener).send("ok");
+        join("jack", backListener).send("ok");
 
         backListener.hasNoMessageReceivedFromOthers();
         frontListener.hasReceivedMessageFrom("jack", "ok");
@@ -41,16 +41,16 @@ public class ChatTest {
 
     @Test
     public void stopReceivesMessageWhenDisconnectedFromChat() {
-        chat.join("bob", frontListener).close();
+        join("bob", frontListener).close();
 
-        chat.join("jack", backListener).send("ok");
+        join("jack", backListener).send("ok");
 
         frontListener.hasNoJoinedMessageReceived();
     }
 
     @Test
     public void failsToSendingMessageIfChannelWasClosed() {
-        Chat.ChatChannel channel = chat.join("bob", backListener);
+        Chat.ChatChannel channel = join("bob", backListener);
 
         channel.close();
 
@@ -62,7 +62,14 @@ public class ChatTest {
         }
     }
 
+    private Chat.ChatChannel join(String user, MockChatMessageListener backListener) {
+        Chat.ChatChannel channel = chat.channelFor(user, backListener);
+        channel.join();
+        return channel;
+    }
+
     private static class MockChatMessageListener implements ChatMessageListener {
+
         private final List<String> users = new ArrayList<>();
         private final List<Map.Entry<String, String>> messages = new ArrayList<>();
 

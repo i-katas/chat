@@ -16,7 +16,8 @@ public class ChatServer {
 
     @OnOpen
     public void join(@PathParam("user") String user, Session session) {
-        channel = chat.join(user, chatMessageDispatcherFor(session));
+        channel = chat.channelFor(user, chatMessageDispatcherFor(session));
+        channel.join();
     }
 
     private ChatMessageDispatcher chatMessageDispatcherFor(Session session) {

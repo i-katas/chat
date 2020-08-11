@@ -8,20 +8,24 @@ import java.util.stream.Stream;
 public class Chat {
     private final Map<String, ChatMessageListener> messageListeners = new ConcurrentHashMap<>();
 
-    public ChatChannel join(String user, ChatMessageListener chatMessageListener) {
+    public ChatChannel channelFor(String user, ChatMessageListener chatMessageListener) {
         messageListeners.put(user, chatMessageListener);
-        return channelFor(user);
-    }
-
-    private ChatChannel channelFor(String user) {
-        broadcastBy(user, listener -> listener.userJoined(user));
         return new ChatChannel() {
             private volatile boolean closed;
 
             @Override
+            public void join() {
+                broadcast(listener -> listener.userJoined(user));
+            }
+
+            @Override
             public void send(String message) {
                 ensureOpen();
-                broadcastBy(user, listener -> listener.messageReceived(user, message));
+                broadcast(listener -> listener.messageReceived(user, message));
+            }
+
+            private void broadcast(Consumer<ChatMessageListener> action) {
+                chatMessageListeners(user).forEach(action);
             }
 
             private void ensureOpen() {
@@ -38,15 +42,13 @@ public class Chat {
         };
     }
 
-    private void broadcastBy(String user, Consumer<ChatMessageListener> action) {
-        chatMessageListeners(user).forEach(action);
-    }
-
     private Stream<ChatMessageListener> chatMessageListeners(String user) {
         return messageListeners.entrySet().stream().filter(it -> !it.getKey().equals(user)).map(Map.Entry::getValue);
     }
 
     public interface ChatChannel {
+        void join();
+
         void send(String message);
 
         void close();
