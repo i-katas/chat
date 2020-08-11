@@ -35,10 +35,10 @@ export default class Chat extends React.Component {
         this.show({type: 'error notice', content: '连接服务器失败!'})
     }
 
-    show(message, chat) {
-        this.setState(prevState => ({
-            chat: chat || prevState.chat,
-            messages: prevState.messages.concat({...message, system: !message.from, from: message.from || '我'})
+    show(message, currentChat) {
+        this.setState(({chat, messages}) => ({
+            chat: currentChat || chat,
+            messages: messages.concat({...message, system: !message.from, from: message.from || '我'})
         }))
     }
 }
