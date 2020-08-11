@@ -10,6 +10,8 @@ import java.util.Map;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.fail;
+import static org.junit.internal.matchers.ThrowableMessageMatcher.hasMessage;
 
 public class ChatTest {
     private final Chat chat = new Chat();
@@ -44,6 +46,20 @@ public class ChatTest {
         chat.join("jack", backListener).send("ok");
 
         frontListener.hasNoJoinedMessageReceived();
+    }
+
+    @Test
+    public void failsToSendingMessageIfChannelWasClosed() {
+        Chat.ChatChannel channel = chat.join("bob", backListener);
+
+        channel.close();
+
+        try {
+            channel.send("anything");
+            fail("Send message after closed");
+        } catch (IllegalStateException expected) {
+            assertThat(expected, hasMessage(equalTo("Channel closed")));
+        }
     }
 
     private static class MockChatMessageListener implements ChatMessageListener {

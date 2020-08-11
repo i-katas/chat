@@ -10,17 +10,30 @@ public class Chat {
 
     public ChatChannel join(String user, ChatMessageListener chatMessageListener) {
         messageListeners.put(user, chatMessageListener);
-        broadcastBy(user, listener -> listener.userJoined(user));
+        return channelFor(user);
+    }
 
+    private ChatChannel channelFor(String user) {
+        broadcastBy(user, listener -> listener.userJoined(user));
         return new ChatChannel() {
+            private volatile boolean closed;
+
             @Override
             public void send(String message) {
+                ensureOpen();
                 broadcastBy(user, listener -> listener.messageReceived(user, message));
+            }
+
+            private void ensureOpen() {
+                if (closed) {
+                    throw new IllegalStateException("Channel closed");
+                }
             }
 
             @Override
             public void close() {
                 messageListeners.remove(user);
+                closed = true;
             }
         };
     }

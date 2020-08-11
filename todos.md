@@ -12,5 +12,5 @@
 
 # Server
 - ~~Disconnect when dispatch notification/message failed on server~~
-- ?fails to send the message if the channel has closed
+- ~~fails to send the message if the channel has closed~~
 - ~~Close chat channel when user has disconnected from chat~~
