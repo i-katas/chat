@@ -10,7 +10,6 @@ import java.util.Map;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.junit.internal.matchers.ThrowableMessageMatcher.hasMessage;
 
@@ -21,20 +20,20 @@ public class ChatTest {
 
     @Test
     public void receivesAJoinedMessageAfterOthersJoined() {
-        join("bob", frontListener);
+        chat.join("bob", frontListener);
         frontListener.hasNoJoinedMessageReceived();
 
-        join("jack", backListener);
+        chat.join("jack", backListener);
         frontListener.hasReceivedJoinedMessageFrom("jack");
         backListener.hasNoJoinedMessageReceived();
     }
 
     @Test
     public void receivesAMessageSentByOthers() {
-        join("bob", frontListener).send("first");
+        chat.join("bob", frontListener).send("first");
         frontListener.hasNoMessageReceivedFromOthers();
 
-        join("jack", backListener).send("ok");
+        chat.join("jack", backListener).send("ok");
 
         backListener.hasNoMessageReceivedFromOthers();
         frontListener.hasReceivedMessageFrom("jack", "ok");
@@ -42,16 +41,16 @@ public class ChatTest {
 
     @Test
     public void stopReceivesMessageWhenDisconnectedFromChat() {
-        join("bob", frontListener).close();
+        chat.join("bob", frontListener).close();
 
-        join("jack", backListener).send("ok");
+        chat.join("jack", backListener).send("ok");
 
         frontListener.hasNoJoinedMessageReceived();
     }
 
     @Test
     public void failsToSendingMessageIfChannelWasClosed() {
-        Chat.ChatChannel channel = join("bob", backListener);
+        Chat.ChatChannel channel = chat.join("bob", backListener);
 
         channel.close();
 
@@ -61,38 +60,6 @@ public class ChatTest {
         } catch (IllegalStateException expected) {
             assertThat(expected, hasMessage(equalTo("Channel closed")));
         }
-    }
-
-    @Test
-    public void failsToJoiningIfChannelWasClosed() {
-        Chat.ChatChannel channel = chat.channelFor("bob", backListener);
-
-        channel.close();
-
-        try {
-            channel.join();
-            fail("Joining after closed");
-        } catch (IllegalStateException expected) {
-            assertTrue(true);
-        }
-    }
-
-    @Test
-    public void failsToSendingMessageIfChannelDidNotJoin() {
-        Chat.ChatChannel channel = chat.channelFor("bob", backListener);
-
-        try {
-            channel.send("any");
-            fail("send message before joined");
-        } catch (IllegalStateException expected) {
-            assertThat(expected, hasMessage(equalTo("Channel didn't joined")));
-        }
-    }
-
-    private Chat.ChatChannel join(String user, MockChatMessageListener backListener) {
-        Chat.ChatChannel channel = chat.channelFor(user, backListener);
-        channel.join();
-        return channel;
     }
 
     private static class MockChatMessageListener implements ChatMessageListener {

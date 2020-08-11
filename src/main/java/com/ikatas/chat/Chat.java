@@ -8,46 +8,46 @@ import java.util.stream.Stream;
 public class Chat {
     private final Map<String, ChatMessageListener> messageListeners = new ConcurrentHashMap<>();
 
-    public ChatChannel channelFor(String user, ChatMessageListener chatMessageListener) {
-        return new ChatChannel() {
-            private volatile boolean closed;
+    public ChatChannel join(String user, ChatMessageListener chatMessageListener) {
+        SimpleChatChannel channel = new SimpleChatChannel(user);
+        channel.join(chatMessageListener);
+        return channel;
+    }
 
-            @Override
-            public void join() {
-                ensureOpen();
-                messageListeners.put(user, chatMessageListener);
-                broadcast(listener -> listener.userJoined(user));
-            }
+    private class SimpleChatChannel implements ChatChannel {
+        private String user;
 
-            @Override
-            public void send(String message) {
-                ensureOpen();
-                ensureJoined();
-                broadcast(listener -> listener.messageReceived(user, message));
-            }
+        public SimpleChatChannel(String user) {
+            this.user = user;
+        }
 
-            private void ensureOpen() {
-                if (closed) {
-                    throw new IllegalStateException("Channel closed");
-                }
-            }
+        public void join(ChatMessageListener chatMessageListener) {
+            ensureOpen();
+            messageListeners.put(user, chatMessageListener);
+            broadcast(listener -> listener.userJoined(user));
+        }
 
-            private void ensureJoined() {
-                if (!messageListeners.containsKey(user)) {
-                    throw new IllegalStateException("Channel didn't joined");
-                }
-            }
+        @Override
+        public void send(String message) {
+            ensureOpen();
+            broadcast(listener -> listener.messageReceived(user, message));
+        }
 
-            private void broadcast(Consumer<ChatMessageListener> action) {
-                chatMessageListeners(user).forEach(action);
+        private void ensureOpen() {
+            if (user == null) {
+                throw new IllegalStateException("Channel closed");
             }
+        }
 
-            @Override
-            public void close() {
-                messageListeners.remove(user);
-                closed = true;
-            }
-        };
+        private void broadcast(Consumer<ChatMessageListener> action) {
+            chatMessageListeners(user).forEach(action);
+        }
+
+        @Override
+        public void close() {
+            messageListeners.remove(user);
+            user = null;
+        }
     }
 
     private Stream<ChatMessageListener> chatMessageListeners(String user) {
@@ -55,10 +55,10 @@ public class Chat {
     }
 
     public interface ChatChannel {
-        void join();
 
         void send(String message);
 
         void close();
+
     }
 }
