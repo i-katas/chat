@@ -1,6 +1,7 @@
 # Chat UI
 - Join to chat 
     - display all joined users after joined into the chat
+    - ?join chat with duplicated user name that has already joined in chat
     - ~~separate join action from join message in chatMessageListener~~
     - ~~encapsulate the chat related events in Promise, e.g: join, error, close event~~
 - ~~Send a notification to everyone who has joined in chat~~
