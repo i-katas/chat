@@ -13,8 +13,8 @@ import static org.hamcrest.Matchers.*;
 
 public class ChatTest {
     private final Chat chat = new Chat();
-    private final MockChatListener frontListener = new MockChatListener();
-    private final MockChatListener backListener = new MockChatListener();
+    private final MockChatMessageListener frontListener = new MockChatMessageListener();
+    private final MockChatMessageListener backListener = new MockChatMessageListener();
 
     @Test
     public void receivesAJoinedMessageAfterOthersJoined() {
@@ -46,7 +46,7 @@ public class ChatTest {
         frontListener.hasNoJoinedMessageReceived();
     }
 
-    private static class MockChatListener implements ChatListener {
+    private static class MockChatMessageListener implements ChatMessageListener {
         private final List<String> users = new ArrayList<>();
         private final List<Map.Entry<String, String>> messages = new ArrayList<>();
 

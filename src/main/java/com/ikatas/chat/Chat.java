@@ -6,11 +6,11 @@ import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 public class Chat {
-    private final Map<String, ChatListener> chatListeners = new ConcurrentHashMap<>();
+    private final Map<String, ChatMessageListener> messageListeners = new ConcurrentHashMap<>();
 
-    public ChatChannel join(String user, ChatListener chatListener) {
+    public ChatChannel join(String user, ChatMessageListener chatMessageListener) {
+        messageListeners.put(user, chatMessageListener);
         broadcastBy(user, listener -> listener.userJoined(user));
-        chatListeners.put(user, chatListener);
 
         return new ChatChannel() {
             @Override
@@ -20,17 +20,17 @@ public class Chat {
 
             @Override
             public void close() {
-                chatListeners.remove(user);
+                messageListeners.remove(user);
             }
         };
     }
 
-    private void broadcastBy(String user, Consumer<ChatListener> action) {
-        chatListeners(user).forEach(action);
+    private void broadcastBy(String user, Consumer<ChatMessageListener> action) {
+        chatMessageListeners(user).forEach(action);
     }
 
-    private Stream<ChatListener> chatListeners(String user) {
-        return chatListeners.entrySet().stream().filter(it -> !it.getKey().equals(user)).map(Map.Entry::getValue);
+    private Stream<ChatMessageListener> chatMessageListeners(String user) {
+        return messageListeners.entrySet().stream().filter(it -> !it.getKey().equals(user)).map(Map.Entry::getValue);
     }
 
     public interface ChatChannel {
