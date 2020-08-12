@@ -8,7 +8,7 @@
 - Notify when someone left out of the chat
 - Scroll to the bottom of the message box when show a message if scrollbar at the bottom
 - Retry connect to chat periodically if the connection lost
-- Show chat connection state
+- ~~Show chat connection state~~
 
 
 # Server

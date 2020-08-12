@@ -95,6 +95,31 @@ describe('Chat', () => {
             expect(chat.find('#user')).not.toExist()
             expect(chat.find('#message')).toExist()
         });
+
+        it('displays chat online after joined', async () => {
+            let chat = join('bob');
+            expect(chat.find('.chatState')).not.toHaveClassName('online')
+
+            await server.ack()
+            chat.update()
+
+            expect(chat.find('.chatState')).toHaveClassName('online')
+        });
+
+        it('displays chat offline after send message failed', async () => {
+            let chat = join('bob');
+
+            await server.ack()
+            chat.update()
+            expect(chat.find('.chatState')).toHaveClassName('online')
+
+            chat.find('#message').simulate('change', {target: {value: 'hello'}})
+            chat.find('#send').simulate('click')
+
+            await server.fail()
+            chat.update()
+            expect(chat.find('.chatState')).not.toHaveClassName('online')
+        });
     });
 })
 

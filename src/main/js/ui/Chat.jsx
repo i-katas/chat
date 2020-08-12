@@ -3,15 +3,17 @@ import ChatEndpoint from '../ws/ChatEndpoint'
 import MessageBox from './MessageBox'
 import JoinBox from './JoinBox'
 import SendBox from './SendBox'
+import ChatState from './ChatState'
 import PropTypes from 'prop-types'
 
 export default class Chat extends React.Component {
-    state = {messages: []};
+    state = {chat: null, offline: false, messages: []};
 
     render() {
-        let {messages, chat} = this.state
+        let {chat, online, messages} = this.state
         return (
             <div className='chat'>
+                <ChatState online={online}/>
                 <MessageBox messages={messages}/>
                 {chat ? <SendBox send={this.send}/> : <JoinBox join={this.join}/>}
             </div>
@@ -19,10 +21,13 @@ export default class Chat extends React.Component {
     }
 
     join = (user) => {
-        this.props.endpoint.join(user, {
+        let chatMessageListener = {
             userJoined: ({from}) => this.show({from, type: 'notice', content: `${from}已加入聊天!`}),
             messageArrived: (message) => this.show({type: 'message', ...message})
-        }).then(chat => this.show({type: 'notice', content: '你已加入聊天!'}, chat)).catch(this.fail)
+        };
+
+        this.props.endpoint.join(user, online => this.setState({online}), chatMessageListener)
+            .then(chat => this.show({type: 'notice', content: '你已加入聊天!'}, chat)).catch(this.fail)
     }
 
     send = (message) => {

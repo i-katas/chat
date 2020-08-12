@@ -1,6 +1,6 @@
 import '@babel/polyfill'
 import ChatEndpoint from 'ws/ChatEndpoint'
-import WebSocket from 'ws'
+import {Server} from 'ws'
 
 describe('ChatEndpoint', () => {
     let server, chat;
@@ -51,7 +51,23 @@ describe('ChatEndpoint', () => {
         })
     });
 
-    afterEach(() => server.stop())
+    it('notify chat is opened after joined', done => {
+        chat.join('bob', open => {
+            expect(open).toBe(true)
+            done()
+        })
+    });
+
+    it('notify chat is not opened if join failed', done => {
+        server.stop(() => {
+            chat.join('bob', open => {
+                expect(open).toBe(false)
+                done()
+            })
+        })
+    });
+
+    afterEach(done => server.stop(done))
 });
 
 class MockWebSocketServer {
@@ -59,7 +75,7 @@ class MockWebSocketServer {
     sockets = []
 
     constructor() {
-        this.server = new WebSocket.Server({port: 0});
+        this.server = new Server({port: 0});
         this.server.on('connection', (socket, request) => {
             let pos = request.url.lastIndexOf('/')
             let user = request.url.substring(pos + 1);
@@ -84,6 +100,7 @@ class MockWebSocketServer {
     }
 
     stop(callback) {
+        this.sockets.forEach(it => (it.close(), it.terminate()))
         this.server.close(callback)
     }
 }

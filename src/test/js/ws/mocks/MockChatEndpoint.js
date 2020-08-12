@@ -6,36 +6,36 @@ export default class MockChatEndpoint extends ChatEndpoint {
     messages = []
     eventListeners = []
 
-    join(user, eventListener) {
+    join(user, chatListener, chatMessageListener) {
         this.users.push(user)
-        this.eventListeners.push(eventListener)
+        this.eventListeners.push(chatMessageListener)
         let current = this.eventListeners.length - 1
 
+        let rejection = reject => (chatListener(false), reject());
         return this.start(resolve => {
+            chatListener(true)
             this.eventListeners.slice(0, current).forEach(listener => listener.userJoined({from: user}))
             resolve({
                 send: (content) => {
                     let message = {from: user, content};
                     this.messages.push(message)
                     return this.start(resolve => {
-                        this.eventListeners.filter(it => it !== eventListener).forEach(it => it.messageArrived(message))
+                        this.eventListeners.filter(it => it !== chatMessageListener).forEach(it => it.messageArrived(message))
                         resolve(message)
-                    })
+                    }, rejection)
                 }
             })
-        })
+        }, rejection)
     }
 
-    start(resolveWith) {
+    start(resolveWith, rejectWith) {
         let task = new Promise((resolve, reject) => {
             this.tasks.push({
                 reject() {
-                    reject()
-                    return task
+                    return (rejectWith(reject), task)
                 },
                 resolve() {
-                    resolveWith(resolve)
-                    return task
+                    return (resolveWith(resolve), task)
                 }
             })
         });
@@ -55,15 +55,10 @@ export default class MockChatEndpoint extends ChatEndpoint {
     }
 
     fail() {
-        return this.run(it => it.reject()).catch(() => {/**/})
+        return this.run(it => it.reject()).catch(() => (0))
     }
 
     run(handler) {
         return Promise.all(this.tasks.splice(0).map(handler));
-    }
-
-    send(message) {
-        this.eventListeners.filter((_, i) => this.users[i] !== message.from).forEach(listener => listener.messageArrived(message));
-        message.resolve()
     }
 }

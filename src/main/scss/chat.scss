@@ -13,6 +13,7 @@ $message_arrow_margin: 5px;
 $user_height: 1.5em;
 $font_size: 2em;
 $send_button_background: #2e7d32;
+$chat_state_size: 15px;
 
 html, body {
   margin: 0;
@@ -34,6 +35,21 @@ html, body {
 .chat {
   font-size: $font_size;
   @extend body;
+
+  .chatState {
+    width: $chat_state_size;
+    height: $chat_state_size;
+    border-radius: 50%;
+    background: linear-gradient(gray, lighten(gray, 30%));
+    position: absolute;
+    z-index: 999;
+    top: $chat_state_size;
+    right: $chat_state_size;
+
+    &.online {
+      background: linear-gradient(green, lighten(green, 30%));
+    }
+  }
 
   .messageBox {
     background: $chat_background;
@@ -116,8 +132,8 @@ html, body {
       text-align: center;
 
       &.error em {
-         background: #ff3d00;
-         color: #fff;
+        background: #ff3d00;
+        color: #fff;
       }
     }
 
